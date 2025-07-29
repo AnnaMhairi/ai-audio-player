@@ -1,0 +1,17 @@
+[
+    {
+      "id": "1",
+      "title": "Midnight Jam",
+      "artist": "DJ Suno",
+      "url": "/audio/midnight-jam.mp3",
+      "artwork": "/images/art1.jpg"
+    },
+    {
+      "id": "2",
+      "title": "Ocean Breeze",
+      "artist": "Wave Rider",
+      "url": "/audio/ocean-breeze.mp3",
+      "artwork": "/images/art2.jpg"
+    }
+  ]
+  
