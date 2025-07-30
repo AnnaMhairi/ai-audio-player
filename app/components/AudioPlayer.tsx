@@ -1,56 +1,73 @@
-"use client"; 
+"use client";
 
+import { useEffect, useRef } from "react";
 import { usePlayerStore } from "../store/usePlayerStore";
-import { useRef, useEffect } from "react";
 
 export default function AudioPlayer() {
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { currentTrack, isPlaying, togglePlay } = usePlayerStore();
 
-    useEffect(() => {
-        if (audioRef.current && currentTrack) {
-            audioRef.current.src = currentTrack.url;
-            audioRef.current.load();
-            // auto play current track
-            audioRef.current.play();
-        }
-    }, [currentTrack]);
+  // Load a new track when currentTrack changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !currentTrack) return;
 
-    // Load new track when currentTrack changes
-    useEffect(() => {
-        if (audioRef.current && currentTrack) {
-        audioRef.current.src = currentTrack.url;
-        if (isPlaying) audioRef.current.play();
-        }
-    }, [currentTrack]);
+    // Stop and reset before loading the new source
+    audio.pause();
+    audio.src = currentTrack.url;
+    audio.load();
 
-    // Play/pause toggle
-    useEffect(() => {
-        if (!audioRef.current) return;
-        isPlaying ? audioRef.current.play() : audioRef.current.pause();
-    }, [isPlaying]);
+    // Auto-play once the browser confirms it's ready
+    const handleCanPlay = async () => {
+      try {
+        await audio.play();
+      } catch (err) {
+        console.warn("Auto-play was blocked:", err);
+      }
+    };
 
-    if (!currentTrack) {
-        return (
-            <div className="p-4 border rounded bg-white shadow">
-                <p className="text-gray-500">Select a track from the library</p>
-            </div>
-        );
+    audio.addEventListener("canplay", handleCanPlay);
+
+    return () => {
+      audio.removeEventListener("canplay", handleCanPlay);
+    };
+  }, [currentTrack]);
+
+  // Toggle play/pause manually when the user hits the button
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio
+        .play()
+        .catch((err) => console.warn("Play error:", err));
+    } else {
+      audio.pause();
     }
+  }, [isPlaying]);
 
+  if (!currentTrack) {
     return (
-        <div className="flex items-center space-x-4">
-            <button
-            onClick={togglePlay}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-                {isPlaying ? "Pause" : "Play"}
-            </button>
-        <div>
-            <p className="font-semibold">{currentTrack.title}</p>
-            <p className="text-sm text-gray-600">{currentTrack.artist}</p>
-        </div>
-        <audio ref={audioRef} />
+      <div className="p-4 border rounded bg-white shadow">
+        <p className="text-gray-500">Select a track from the library</p>
       </div>
-    )
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-4 bg-white shadow-md p-4 rounded">
+      <button
+        onClick={togglePlay}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        {isPlaying ? "Pause" : "Play"}
+      </button>
+      <div>
+        <p className="font-semibold">{currentTrack.title}</p>
+        <p className="text-sm text-gray-600">{currentTrack.artist}</p>
+      </div>
+      <audio ref={audioRef} preload="auto" />
+    </div>
+  );
 }
