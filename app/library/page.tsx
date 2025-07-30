@@ -1,10 +1,16 @@
 'use client';
 
+import { useEffect } from "react";
 import tracks from ".././data/tracks.json";
 import { usePlayerStore } from "../store/usePlayerStore";
 
 export default function Library() {
     const setTrack = usePlayerStore((state) => state.setTrack);
+    const setPlaylist = usePlayerStore((state) => state.setPlaylist);
+    
+    useEffect(() => {
+        setPlaylist(tracks); // loads tracks.json into global playlist
+    }, []);
 
     return (
         <main className="p-6 space-y-4">

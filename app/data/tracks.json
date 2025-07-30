@@ -12,6 +12,13 @@
       "artist": "Wave Rider",
       "url": "/audio/ocean-breeze.mp3",
       "artwork": "/images/art2.jpg"
+    },
+    {
+      "id": "3",
+      "title": "Dancing in the Club",
+      "artist": "etiolate",
+      "url": "/audio/dancingintheclub.mp3",
+      "artwork": "/images/art3.jpg"
     }
   ]
   
